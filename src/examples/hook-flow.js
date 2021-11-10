@@ -67,6 +67,7 @@ function App() {
     console.log('%cApp: useState(() => false)', 'color: tomato')
     return false
   })
+  const [stateForRerender, setStateForRerender] = React.useState(0)
 
   React.useEffect(() => {
     console.log('%cApp: useEffect(() => {})', 'color: LightCoral')
@@ -116,6 +117,31 @@ function App() {
       >
         {showChild ? <Child /> : null}
       </div>
+      <div
+        style={{
+          padding: 10,
+          margin: 10,
+          height: 50,
+          width: 50,
+          border: 'solid',
+        }}
+      >
+        {showChild ? <Child /> : null}
+      </div>
+      <div
+        style={{
+          padding: 10,
+          margin: 10,
+          height: 50,
+          width: 50,
+          border: 'solid',
+        }}
+      >
+        {<Child />}
+      </div>
+      <button onClick={() => setStateForRerender(stateForRerender + 1)}>
+        Re-render
+      </button>
     </>
   )
 
