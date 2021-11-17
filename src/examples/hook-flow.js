@@ -106,17 +106,7 @@ function App() {
         />{' '}
         show child
       </label>
-      <div
-        style={{
-          padding: 10,
-          margin: 10,
-          height: 50,
-          width: 50,
-          border: 'solid',
-        }}
-      >
-        {showChild ? <Child /> : null}
-      </div>
+
       <div
         style={{
           padding: 10,
@@ -139,6 +129,18 @@ function App() {
       >
         {<Child />}
       </div>
+      <div
+        style={{
+          padding: 10,
+          margin: 10,
+          height: 50,
+          width: 50,
+          border: 'solid',
+        }}
+      >
+        {showChild ? <Child /> : null}
+      </div>
+
       <button onClick={() => setStateForRerender(stateForRerender + 1)}>
         Re-render
       </button>
