@@ -44,53 +44,16 @@ function calculateWinner(squares) {
   return winner
 }
 
-function Board() {
-  const initializeSquares = () => Array(9).fill(null)
-  // 🐨 squares is the state for this component. Add useState for squares
-  const [squares, setSquares] = useLocalStorageState(
-    'tic-tac-toe',
-    initializeSquares,
-  )
-
+function Board({squares, handleSquaresChange, restart}) {
   const nextValue = calculateNextValue(squares)
   const winner = calculateWinner(squares)
 
-  // 🐨 We'll need the following bits of derived state:
-  // - nextValue ('X' or 'O')
-  // - winner ('X', 'O', or null)
-  // - status (`Winner: ${winner}`, `Scratch: Cat's game`, or `Next player: ${nextValue}`)
-  // 💰 I've written the calculations for you! So you can use my utilities
-  // below to create these variables
-
-  // This is the function your square click handler will call. `square` should
-  // be an index. So if they click the center square, this will be `4`.
   function selectSquare(square) {
-    // 🐨 first, if there's already winner or there's already a value at the
-    // given square index (like someone clicked a square that's already been
-    // clicked), then return early so we don't make any state changes
-    //
-    // 🦉 It's typically a bad idea to mutate or directly change state in React.
-    // Doing so can lead to subtle bugs that can easily slip into production.
-    //
-    // 🐨 make a copy of the squares array
-    // 💰 `[...squares]` will do it!)
-    //
-    // 🐨 set the value of the square that was selected
-    // 💰 `squaresCopy[square] = nextValue`
-    //
-    // 🐨 set the squares to your copy
-
     if (!winner && !squares[square]) {
       const newSquares = [...squares]
       newSquares[square] = nextValue
-      setSquares(newSquares)
+      handleSquaresChange(newSquares)
     }
-  }
-
-  function restart() {
-    // 🐨 reset the squares
-    // 💰 `Array(9).fill(null)` will do it!
-    setSquares(initializeSquares())
   }
 
   function renderSquare(i) {
@@ -103,7 +66,6 @@ function Board() {
 
   return (
     <div>
-      {/* 🐨 put the status in the div below */}
       <div className="status">
         {calculateStatus(winner, squares, nextValue)}
       </div>
@@ -130,10 +92,67 @@ function Board() {
 }
 
 function Game() {
+  const initializeSquares = () => Array(9).fill(null)
+  const [squares, setSquares] = useLocalStorageState(
+    'tic-tac-toe',
+    initializeSquares,
+  )
+  const [history, setHistory] = React.useState(() => [squares])
+  const [historyIndex, setHistoryIndex] = React.useState(
+    () => history.length - 1,
+  )
+
+  const addSquaresToHistory = squares => {
+    setHistory([
+      ...history.filter((_, index) => index <= historyIndex),
+      squares,
+    ])
+    setHistoryIndex(historyIndex + 1)
+  }
+
+  function restart() {
+    const squares = initializeSquares()
+    setSquares(squares)
+    addSquaresToHistory(squares)
+  }
+
   return (
     <div className="game">
       <div className="game-board">
-        <Board />
+        <Board
+          squares={squares}
+          handleSquaresChange={squares => {
+            setSquares(squares)
+            addSquaresToHistory(squares)
+          }}
+          restart={restart}
+        />
+        <div>
+          <button
+            disabled={historyIndex < 1}
+            onClick={() => {
+              if (historyIndex >= 1) {
+                let newHistoryIndex = historyIndex - 1
+                setSquares(history[newHistoryIndex])
+                setHistoryIndex(newHistoryIndex)
+              }
+            }}
+          >
+            back
+          </button>
+          <button
+            disabled={historyIndex >= history.length - 1}
+            onClick={() => {
+              if (historyIndex < history.length - 1) {
+                let newHistoryIndex = historyIndex + 1
+                setSquares(history[newHistoryIndex])
+                setHistoryIndex(newHistoryIndex)
+              }
+            }}
+          >
+            forward
+          </button>
+        </div>
       </div>
     </div>
   )
