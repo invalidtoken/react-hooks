@@ -34,4 +34,8 @@ function useLocalStorageState(
   return [state, setState]
 }
 
+function useHistory() {
+  const [history, setHistory] = React.useState([])
+}
+
 export {useLocalStorageState}
