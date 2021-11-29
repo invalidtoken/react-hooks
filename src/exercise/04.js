@@ -44,7 +44,7 @@ function calculateWinner(squares) {
   return winner
 }
 
-function Board({squares, handleSquaresChange, restart}) {
+function Board({squares, handleSquaresChange}) {
   const nextValue = calculateNextValue(squares)
   const winner = calculateWinner(squares)
 
@@ -84,9 +84,6 @@ function Board({squares, handleSquaresChange, restart}) {
         {renderSquare(7)}
         {renderSquare(8)}
       </div>
-      <button className="restart" onClick={restart}>
-        restart
-      </button>
     </div>
   )
 }
@@ -98,60 +95,47 @@ function Game() {
     initializeSquares,
   )
   const [history, setHistory] = React.useState(() => [squares])
-  const [historyIndex, setHistoryIndex] = React.useState(
-    () => history.length - 1,
-  )
 
   const addSquaresToHistory = squares => {
-    setHistory([
-      ...history.filter((_, index) => index <= historyIndex),
-      squares,
-    ])
-    setHistoryIndex(historyIndex + 1)
+    setHistory([...history, squares])
   }
 
-  function restart() {
-    const squares = initializeSquares()
+  function handleSquareChange(squares) {
     setSquares(squares)
     addSquaresToHistory(squares)
+  }
+
+  function reset() {
+    const squares = initializeSquares()
+    setSquares(squares)
+    setHistory([squares])
   }
 
   return (
     <div className="game">
       <div className="game-board">
-        <Board
-          squares={squares}
-          handleSquaresChange={squares => {
-            setSquares(squares)
-            addSquaresToHistory(squares)
-          }}
-          restart={restart}
-        />
+        <Board squares={squares} handleSquaresChange={handleSquareChange} />
         <div>
-          <button
-            disabled={historyIndex < 1}
-            onClick={() => {
-              if (historyIndex >= 1) {
-                let newHistoryIndex = historyIndex - 1
-                setSquares(history[newHistoryIndex])
-                setHistoryIndex(newHistoryIndex)
-              }
-            }}
-          >
-            back
+          <button className="restart" onClick={reset}>
+            restart
           </button>
-          <button
-            disabled={historyIndex >= history.length - 1}
-            onClick={() => {
-              if (historyIndex < history.length - 1) {
-                let newHistoryIndex = historyIndex + 1
-                setSquares(history[newHistoryIndex])
-                setHistoryIndex(newHistoryIndex)
+          <ol>
+            {history.map((h, _) => {
+              const getDisabled = () => {
+                if (history.length === 1) return true
               }
-            }}
-          >
-            forward
-          </button>
+              return (
+                <li key={_}>
+                  <button
+                    onChange={() => {}}
+                    disabled={_ === 0 || _ === history.length - 1}
+                  >
+                    go to {_ === 0 ? 'game start' : `move #${_}`}
+                  </button>
+                </li>
+              )
+            })}
+          </ol>
         </div>
       </div>
     </div>
