@@ -10,12 +10,50 @@ import {
   PokemonInfoFallback,
 } from '../pokemon'
 
+export class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {hasError: false}
+  }
+
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI.
+    return {error}
+  }
+
+  componentDidCatch() {
+    // console.log('Errorboundary: ComponentDidCatch')
+  }
+
+  render() {
+    // console.log('Errorboundary: render')
+    if (this.state.error) {
+      // You can render any custom fallback UI
+      return (
+        <div role="alert">
+          There was an error:
+          <pre style={{whiteSpace: 'normal'}}>{this.state.error.message}</pre>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
+}
+
 function PokemonInfo({pokemonName}) {
   const [{error, pokemonData, status}, setState] = React.useState({
     error: null,
     status: 'idle',
     pokemonData: null,
   })
+  console.log('running', error, pokemonData, status)
+
+  React.useEffect(() => {
+    return () => {
+      console.log('Component is unmounted')
+    }
+  }, [])
 
   React.useEffect(() => {
     if (!pokemonName) {
@@ -34,13 +72,7 @@ function PokemonInfo({pokemonName}) {
   }, [pokemonName])
 
   if (status === 'idle') return 'Submit a pokemon'
-  else if (status === 'rejected')
-    return (
-      <div role="alert">
-        There was an error:
-        <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
-      </div>
-    )
+  else if (status === 'rejected') throw new Error(error.message)
   else if (status === 'pending') {
     return <PokemonInfoFallback name={pokemonName} />
   } else return <PokemonDataView pokemon={pokemonData} />
@@ -58,7 +90,9 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <PokemonInfo pokemonName={pokemonName} />
+        <ErrorBoundary>
+          <PokemonInfo pokemonName={pokemonName} />
+        </ErrorBoundary>
       </div>
     </div>
   )
