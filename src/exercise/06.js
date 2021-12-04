@@ -2,6 +2,7 @@
 // http://localhost:3000/isolated/exercise/06.js
 
 import * as React from 'react'
+import {ErrorBoundary} from 'react-error-boundary'
 
 import {
   fetchPokemon,
@@ -10,35 +11,14 @@ import {
   PokemonInfoFallback,
 } from '../pokemon'
 
-export class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {hasError: false}
-  }
-
-  static getDerivedStateFromError(error) {
-    // Update state so the next render will show the fallback UI.
-    return {error}
-  }
-
-  componentDidCatch() {
-    // console.log('Errorboundary: ComponentDidCatch')
-  }
-
-  render() {
-    // console.log('Errorboundary: render')
-    if (this.state.error) {
-      // You can render any custom fallback UI
-      return (
-        <div role="alert">
-          There was an error:
-          <pre style={{whiteSpace: 'normal'}}>{this.state.error.message}</pre>
-        </div>
-      )
-    }
-
-    return this.props.children
-  }
+function FallbackUI({message, resetErrorBoundary}) {
+  return (
+    <div role="alert">
+      There was an error:
+      <pre style={{whiteSpace: 'normal'}}>{message}</pre>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+  )
 }
 
 function PokemonInfo({pokemonName}) {
@@ -47,13 +27,6 @@ function PokemonInfo({pokemonName}) {
     status: 'idle',
     pokemonData: null,
   })
-  console.log('running', error, pokemonData, status)
-
-  React.useEffect(() => {
-    return () => {
-      console.log('Component is unmounted')
-    }
-  }, [])
 
   React.useEffect(() => {
     if (!pokemonName) {
@@ -85,12 +58,16 @@ function App() {
     setPokemonName(newPokemonName)
   }
 
+  function onReset() {
+    setPokemonName('')
+  }
+
   return (
     <div className="pokemon-info-app">
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <ErrorBoundary>
+        <ErrorBoundary FallbackComponent={FallbackUI} onReset={onReset}>
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
       </div>
