@@ -184,7 +184,7 @@ function PokemonForm({
   )
 }
 
-function ErrorFallback({error, resetErrorBoundary}) {
+export function ErrorFallback({error, resetErrorBoundary}) {
   return (
     <div role="alert">
       There was an error:{' '}

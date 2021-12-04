@@ -24,7 +24,7 @@ function FallbackUI({message, resetErrorBoundary}) {
 function PokemonInfo({pokemonName}) {
   const [{error, pokemonData, status}, setState] = React.useState({
     error: null,
-    status: 'idle',
+    status: pokemonName ? 'pending' : 'idle',
     pokemonData: null,
   })
 
@@ -52,7 +52,7 @@ function PokemonInfo({pokemonName}) {
 }
 
 function App() {
-  const [pokemonName, setPokemonName] = React.useState('pikachu')
+  const [pokemonName, setPokemonName] = React.useState('')
 
   function handleSubmit(newPokemonName) {
     setPokemonName(newPokemonName)
@@ -67,7 +67,11 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <ErrorBoundary FallbackComponent={FallbackUI} onReset={onReset}>
+        <ErrorBoundary
+          resetKey={[pokemonName]}
+          FallbackComponent={FallbackUI}
+          onReset={onReset}
+        >
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
       </div>
